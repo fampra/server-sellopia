@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Server, Cpu, HardDrive, MemoryStick } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface Component {
   name: string;
@@ -22,15 +23,17 @@ const serverConfigs = {
       { name: "Intel Xeon Platinum 8358", price: 1200 },
     ],
     ramOptions: [
-      { name: "32GB DDR4-3200 ECC", price: 180 },
-      { name: "64GB DDR4-3200 ECC", price: 340 },
-      { name: "128GB DDR4-3200 ECC", price: 650 },
+      { name: "4GB DDR4-3200 ECC", price: 45 },
+      { name: "8GB DDR4-3200 ECC", price: 85 },
+      { name: "16GB DDR4-3200 ECC", price: 160 },
     ],
     storageOptions: [
       { name: "2 x 480GB SSD RAID1", price: 240 },
       { name: "2 x 960GB SSD RAID1", price: 400 },
       { name: "4 x 480GB SSD RAID10", price: 480 },
     ],
+    maxCpus: 2,
+    maxRamSticks: 8,
   },
   "2U Rack Server": {
     cpuOptions: [
@@ -39,15 +42,17 @@ const serverConfigs = {
       { name: "AMD EPYC 7513", price: 1300 },
     ],
     ramOptions: [
-      { name: "64GB DDR4-2933 ECC", price: 320 },
-      { name: "128GB DDR4-2933 ECC", price: 600 },
-      { name: "256GB DDR4-2933 ECC", price: 1100 },
+      { name: "8GB DDR4-2933 ECC", price: 80 },
+      { name: "16GB DDR4-2933 ECC", price: 150 },
+      { name: "32GB DDR4-2933 ECC", price: 275 },
     ],
     storageOptions: [
       { name: "4 x 2TB SATA HDD RAID5", price: 600 },
       { name: "4 x 4TB SATA HDD RAID5", price: 800 },
       { name: "8 x 2TB SATA HDD RAID10", price: 1200 },
     ],
+    maxCpus: 2,
+    maxRamSticks: 16,
   },
   "Tower Server": {
     cpuOptions: [
@@ -56,15 +61,17 @@ const serverConfigs = {
       { name: "Intel Xeon E-2378", price: 500 },
     ],
     ramOptions: [
-      { name: "16GB DDR4-2666", price: 90 },
-      { name: "32GB DDR4-2666", price: 170 },
-      { name: "64GB DDR4-2666", price: 320 },
+      { name: "4GB DDR4-2666", price: 45 },
+      { name: "8GB DDR4-2666", price: 85 },
+      { name: "16GB DDR4-2666", price: 160 },
     ],
     storageOptions: [
       { name: "1TB SATA HDD", price: 80 },
       { name: "2TB SATA HDD", price: 120 },
       { name: "500GB SSD + 2TB HDD", price: 200 },
     ],
+    maxCpus: 1,
+    maxRamSticks: 4,
   },
 };
 
@@ -73,9 +80,13 @@ export function ServerConfigurator({ frameType }: ServerConfiguratorProps) {
   const [selectedCpu, setSelectedCpu] = useState<Component>(config.cpuOptions[0]);
   const [selectedRam, setSelectedRam] = useState<Component>(config.ramOptions[0]);
   const [selectedStorage, setSelectedStorage] = useState<Component>(config.storageOptions[0]);
+  const [cpuQuantity, setCpuQuantity] = useState(1);
+  const [ramQuantity, setRamQuantity] = useState(1);
 
   const calculateTotal = () => {
-    return selectedCpu.price + selectedRam.price + selectedStorage.price;
+    return (selectedCpu.price * cpuQuantity) + 
+           (selectedRam.price * ramQuantity) + 
+           selectedStorage.price;
   };
 
   return (
@@ -91,48 +102,68 @@ export function ServerConfigurator({ frameType }: ServerConfiguratorProps) {
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium">
-              <Cpu className="h-4 w-4" /> Processor
+              <Cpu className="h-4 w-4" /> Processor ({config.maxCpus} max)
             </label>
-            <Select
-              value={selectedCpu.name}
-              onValueChange={(value) => 
-                setSelectedCpu(config.cpuOptions.find((cpu) => cpu.name === value) || config.cpuOptions[0])
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select CPU" />
-              </SelectTrigger>
-              <SelectContent>
-                {config.cpuOptions.map((cpu) => (
-                  <SelectItem key={cpu.name} value={cpu.name}>
-                    {cpu.name} (+${cpu.price})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select
+                value={selectedCpu.name}
+                onValueChange={(value) => 
+                  setSelectedCpu(config.cpuOptions.find((cpu) => cpu.name === value) || config.cpuOptions[0])
+                }
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Select CPU" />
+                </SelectTrigger>
+                <SelectContent>
+                  {config.cpuOptions.map((cpu) => (
+                    <SelectItem key={cpu.name} value={cpu.name}>
+                      {cpu.name} (+${cpu.price})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                type="number"
+                min="1"
+                max={config.maxCpus}
+                value={cpuQuantity}
+                onChange={(e) => setCpuQuantity(Math.min(Math.max(1, parseInt(e.target.value) || 1), config.maxCpus))}
+                className="w-24"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium">
-              <MemoryStick className="h-4 w-4" /> Memory
+              <MemoryStick className="h-4 w-4" /> Memory ({config.maxRamSticks} slots)
             </label>
-            <Select
-              value={selectedRam.name}
-              onValueChange={(value) =>
-                setSelectedRam(config.ramOptions.find((ram) => ram.name === value) || config.ramOptions[0])
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select RAM" />
-              </SelectTrigger>
-              <SelectContent>
-                {config.ramOptions.map((ram) => (
-                  <SelectItem key={ram.name} value={ram.name}>
-                    {ram.name} (+${ram.price})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select
+                value={selectedRam.name}
+                onValueChange={(value) =>
+                  setSelectedRam(config.ramOptions.find((ram) => ram.name === value) || config.ramOptions[0])
+                }
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Select RAM" />
+                </SelectTrigger>
+                <SelectContent>
+                  {config.ramOptions.map((ram) => (
+                    <SelectItem key={ram.name} value={ram.name}>
+                      {ram.name} (+${ram.price})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                type="number"
+                min="1"
+                max={config.maxRamSticks}
+                value={ramQuantity}
+                onChange={(e) => setRamQuantity(Math.min(Math.max(1, parseInt(e.target.value) || 1), config.maxRamSticks))}
+                className="w-24"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -163,8 +194,8 @@ export function ServerConfigurator({ frameType }: ServerConfiguratorProps) {
           <div className="text-sm font-medium">Selected Configuration</div>
           <ul className="mt-2 space-y-1 text-sm">
             <li>Server Type: {frameType}</li>
-            <li>CPU: {selectedCpu.name} (${selectedCpu.price})</li>
-            <li>RAM: {selectedRam.name} (${selectedRam.price})</li>
+            <li>CPU: {cpuQuantity}x {selectedCpu.name} (${selectedCpu.price * cpuQuantity})</li>
+            <li>RAM: {ramQuantity}x {selectedRam.name} (${selectedRam.price * ramQuantity})</li>
             <li>Storage: {selectedStorage.name} (${selectedStorage.price})</li>
           </ul>
           <div className="mt-4 flex items-baseline justify-between border-t pt-4">
