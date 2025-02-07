@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Server, Cpu, HardDrive, Memory } from "lucide-react";
+import { Server, Cpu, HardDrive, MemoryStick } from "lucide-react";
 
 interface Component {
   name: string;
@@ -73,7 +73,7 @@ export function ServerConfigurator() {
 
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium">
-              <Memory className="h-4 w-4" /> Memory
+              <MemoryStick className="h-4 w-4" /> Memory
             </label>
             <Select
               value={selectedRam.name}
