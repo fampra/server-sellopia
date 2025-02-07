@@ -14,28 +14,65 @@ interface ServerConfiguratorProps {
   frameType: string;
 }
 
-const cpuOptions: Component[] = [
-  { name: "Intel Xeon E5-2620 v3", price: 50 },
-  { name: "Intel Xeon E5-2650 v3", price: 80 },
-  { name: "Intel Xeon E5-2680 v3", price: 120 },
-];
-
-const ramOptions: Component[] = [
-  { name: "16GB DDR4", price: 40 },
-  { name: "32GB DDR4", price: 75 },
-  { name: "64GB DDR4", price: 140 },
-];
-
-const storageOptions: Component[] = [
-  { name: "500GB SSD", price: 60 },
-  { name: "1TB SSD", price: 100 },
-  { name: "2TB SSD", price: 180 },
-];
+const serverConfigs = {
+  "1U Rack Server": {
+    cpuOptions: [
+      { name: "Intel Xeon Gold 5315Y", price: 450 },
+      { name: "Intel Xeon Gold 6326", price: 750 },
+      { name: "Intel Xeon Platinum 8358", price: 1200 },
+    ],
+    ramOptions: [
+      { name: "32GB DDR4-3200 ECC", price: 180 },
+      { name: "64GB DDR4-3200 ECC", price: 340 },
+      { name: "128GB DDR4-3200 ECC", price: 650 },
+    ],
+    storageOptions: [
+      { name: "2 x 480GB SSD RAID1", price: 240 },
+      { name: "2 x 960GB SSD RAID1", price: 400 },
+      { name: "4 x 480GB SSD RAID10", price: 480 },
+    ],
+  },
+  "2U Rack Server": {
+    cpuOptions: [
+      { name: "AMD EPYC 7313", price: 700 },
+      { name: "AMD EPYC 7413", price: 900 },
+      { name: "AMD EPYC 7513", price: 1300 },
+    ],
+    ramOptions: [
+      { name: "64GB DDR4-2933 ECC", price: 320 },
+      { name: "128GB DDR4-2933 ECC", price: 600 },
+      { name: "256GB DDR4-2933 ECC", price: 1100 },
+    ],
+    storageOptions: [
+      { name: "4 x 2TB SATA HDD RAID5", price: 600 },
+      { name: "4 x 4TB SATA HDD RAID5", price: 800 },
+      { name: "8 x 2TB SATA HDD RAID10", price: 1200 },
+    ],
+  },
+  "Tower Server": {
+    cpuOptions: [
+      { name: "Intel Xeon E-2314", price: 250 },
+      { name: "Intel Xeon E-2334", price: 350 },
+      { name: "Intel Xeon E-2378", price: 500 },
+    ],
+    ramOptions: [
+      { name: "16GB DDR4-2666", price: 90 },
+      { name: "32GB DDR4-2666", price: 170 },
+      { name: "64GB DDR4-2666", price: 320 },
+    ],
+    storageOptions: [
+      { name: "1TB SATA HDD", price: 80 },
+      { name: "2TB SATA HDD", price: 120 },
+      { name: "500GB SSD + 2TB HDD", price: 200 },
+    ],
+  },
+};
 
 export function ServerConfigurator({ frameType }: ServerConfiguratorProps) {
-  const [selectedCpu, setSelectedCpu] = useState<Component>(cpuOptions[0]);
-  const [selectedRam, setSelectedRam] = useState<Component>(ramOptions[0]);
-  const [selectedStorage, setSelectedStorage] = useState<Component>(storageOptions[0]);
+  const config = serverConfigs[frameType as keyof typeof serverConfigs];
+  const [selectedCpu, setSelectedCpu] = useState<Component>(config.cpuOptions[0]);
+  const [selectedRam, setSelectedRam] = useState<Component>(config.ramOptions[0]);
+  const [selectedStorage, setSelectedStorage] = useState<Component>(config.storageOptions[0]);
 
   const calculateTotal = () => {
     return selectedCpu.price + selectedRam.price + selectedStorage.price;
@@ -59,14 +96,14 @@ export function ServerConfigurator({ frameType }: ServerConfiguratorProps) {
             <Select
               value={selectedCpu.name}
               onValueChange={(value) => 
-                setSelectedCpu(cpuOptions.find((cpu) => cpu.name === value) || cpuOptions[0])
+                setSelectedCpu(config.cpuOptions.find((cpu) => cpu.name === value) || config.cpuOptions[0])
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select CPU" />
               </SelectTrigger>
               <SelectContent>
-                {cpuOptions.map((cpu) => (
+                {config.cpuOptions.map((cpu) => (
                   <SelectItem key={cpu.name} value={cpu.name}>
                     {cpu.name} (+${cpu.price})
                   </SelectItem>
@@ -82,14 +119,14 @@ export function ServerConfigurator({ frameType }: ServerConfiguratorProps) {
             <Select
               value={selectedRam.name}
               onValueChange={(value) =>
-                setSelectedRam(ramOptions.find((ram) => ram.name === value) || ramOptions[0])
+                setSelectedRam(config.ramOptions.find((ram) => ram.name === value) || config.ramOptions[0])
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select RAM" />
               </SelectTrigger>
               <SelectContent>
-                {ramOptions.map((ram) => (
+                {config.ramOptions.map((ram) => (
                   <SelectItem key={ram.name} value={ram.name}>
                     {ram.name} (+${ram.price})
                   </SelectItem>
@@ -105,14 +142,14 @@ export function ServerConfigurator({ frameType }: ServerConfiguratorProps) {
             <Select
               value={selectedStorage.name}
               onValueChange={(value) =>
-                setSelectedStorage(storageOptions.find((storage) => storage.name === value) || storageOptions[0])
+                setSelectedStorage(config.storageOptions.find((storage) => storage.name === value) || config.storageOptions[0])
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select Storage" />
               </SelectTrigger>
               <SelectContent>
-                {storageOptions.map((storage) => (
+                {config.storageOptions.map((storage) => (
                   <SelectItem key={storage.name} value={storage.name}>
                     {storage.name} (+${storage.price})
                   </SelectItem>

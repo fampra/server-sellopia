@@ -11,23 +11,41 @@ const frames = [
   {
     id: "1u-rack",
     title: "1U Rack Server",
-    description: "Compact 1U rack-mountable server, perfect for high-density deployments",
+    description: "Compact 1U rack-mountable server optimized for high-density computing",
     icon: Server,
     startingPrice: 299,
+    specs: [
+      "Supports DDR4 ECC Memory up to 3200MHz",
+      "Dual Intel Xeon Scalable CPU support",
+      "Up to 4 x 2.5\" SSD/HDD bays",
+      "Redundant power supplies",
+    ]
   },
   {
     id: "2u-rack",
     title: "2U Rack Server",
-    description: "Versatile 2U server with expanded storage and cooling capabilities",
+    description: "Versatile 2U server with expanded storage and GPU capabilities",
     icon: HardDrive,
     startingPrice: 399,
+    specs: [
+      "Supports DDR4 ECC Memory up to 2933MHz",
+      "Single AMD EPYC CPU support",
+      "Up to 8 x 3.5\" SSD/HDD bays",
+      "GPU support for up to 2 cards",
+    ]
   },
   {
     id: "tower",
     title: "Tower Server",
-    description: "Stand-alone tower server ideal for small business and office environments",
+    description: "Stand-alone tower server ideal for small business environments",
     icon: Box,
     startingPrice: 349,
+    specs: [
+      "Supports DDR4 Memory up to 2666MHz",
+      "Intel Xeon E-2300 CPU support",
+      "Up to 4 x 3.5\" SSD/HDD bays",
+      "Quiet operation design",
+    ]
   },
 ];
 
@@ -46,7 +64,15 @@ export function ServerFrames({ onFrameSelect }: ServerFrameProps) {
               <CardDescription>Starting from ${frame.startingPrice}</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
-              <p className="text-slate-600">{frame.description}</p>
+              <p className="text-slate-600 mb-4">{frame.description}</p>
+              <ul className="space-y-2">
+                {frame.specs.map((spec, index) => (
+                  <li key={index} className="flex items-center text-sm text-slate-600">
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-400 mr-2"></div>
+                    {spec}
+                  </li>
+                ))}
+              </ul>
             </CardContent>
             <CardFooter>
               <Button 
