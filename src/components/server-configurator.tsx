@@ -10,6 +10,10 @@ interface Component {
   price: number;
 }
 
+interface ServerConfiguratorProps {
+  frameType: string;
+}
+
 const cpuOptions: Component[] = [
   { name: "Intel Xeon E5-2620 v3", price: 50 },
   { name: "Intel Xeon E5-2650 v3", price: 80 },
@@ -28,7 +32,7 @@ const storageOptions: Component[] = [
   { name: "2TB SSD", price: 180 },
 ];
 
-export function ServerConfigurator() {
+export function ServerConfigurator({ frameType }: ServerConfiguratorProps) {
   const [selectedCpu, setSelectedCpu] = useState<Component>(cpuOptions[0]);
   const [selectedRam, setSelectedRam] = useState<Component>(ramOptions[0]);
   const [selectedStorage, setSelectedStorage] = useState<Component>(storageOptions[0]);
@@ -42,7 +46,7 @@ export function ServerConfigurator() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Server className="h-6 w-6 text-slate-600" />
-          <CardTitle className="text-xl">Custom Server Configuration</CardTitle>
+          <CardTitle className="text-xl">{frameType} Configuration</CardTitle>
         </div>
         <CardDescription>Select your components below</CardDescription>
       </CardHeader>
@@ -121,6 +125,7 @@ export function ServerConfigurator() {
         <div className="rounded-lg bg-slate-50 p-4">
           <div className="text-sm font-medium">Selected Configuration</div>
           <ul className="mt-2 space-y-1 text-sm">
+            <li>Server Type: {frameType}</li>
             <li>CPU: {selectedCpu.name} (${selectedCpu.price})</li>
             <li>RAM: {selectedRam.name} (${selectedRam.price})</li>
             <li>Storage: {selectedStorage.name} (${selectedStorage.price})</li>
