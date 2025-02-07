@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { server } from "lucide-react";
+import { Server } from "lucide-react";
 
 interface ServerCardProps {
   title: string;
@@ -17,7 +17,7 @@ export function ServerCard({ title, price, specs, popular }: ServerCardProps) {
     }`}>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <server className="h-6 w-6 text-slate-600" />
+          <Server className="h-6 w-6 text-slate-600" />
           <CardTitle className="text-xl">{title}</CardTitle>
         </div>
         {popular && (
