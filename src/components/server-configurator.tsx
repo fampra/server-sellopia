@@ -16,7 +16,7 @@ interface ServerConfiguratorProps {
 
 const serverConfigs = {
   "HPE ProLiant DL160 Gen9": {
-    startingPrice: 50, // Starting price for the server // Frame
+    startingPrice: 50, // Starting price for the server
     cpuOptions: [
       { name: "Intel Xeon E5-2623 V3 4-Core 3.00GHz", price: 7 },
       { name: "Intel Xeon E5-2603 V3 6-Core 1.60GHz", price: 7 },
@@ -36,7 +36,7 @@ const serverConfigs = {
     ],
     maxCpus: 2,
     maxRamSticks: 16,
-    maxStorage: 8,
+    maxStorage: 8, // Max storage count (not total size)
   },
 };
 
@@ -49,18 +49,40 @@ export function ServerConfigurator({ frameType }: ServerConfiguratorProps) {
   const [cpuQuantity, setCpuQuantity] = useState(1);
   const [ramQuantity, setRamQuantity] = useState(1);
 
-  const addStorage = (storage: Component, quantity: number) => {
+  // Function to add storage but ensure the total count of disks does not exceed 8
+  const addStorage = (storage: Component) => {
     setSelectedStorages((prevStorages) => {
-      const existingIndex = prevStorages.findIndex((s) => s.storage.name === storage.name);
-      if (existingIndex !== -1) {
-        const updatedStorages = [...prevStorages];
-        updatedStorages[existingIndex] = { storage, quantity };
-        return updatedStorages;
+      const totalQuantity = prevStorages.reduce((sum, s) => sum + s.quantity, 0);
+
+      if (totalQuantity < config.maxStorage) {
+        const existingIndex = prevStorages.findIndex((s) => s.storage.name === storage.name);
+        if (existingIndex !== -1) {
+          const updatedStorages = [...prevStorages];
+          updatedStorages[existingIndex] = {
+            storage,
+            quantity: updatedStorages[existingIndex].quantity + 1,
+          };
+          return updatedStorages;
+        }
+        return [...prevStorages, { storage, quantity: 1 }];
       }
-      if (prevStorages.reduce((sum, s) => sum + s.quantity, 0) + quantity <= config.maxStorage) {
-        return [...prevStorages, { storage, quantity }];
-      }
+      alert("You cannot add more than 8 disks in total.");
       return prevStorages;
+    });
+  };
+
+  const updateStorageQuantity = (index: number, quantity: number) => {
+    setSelectedStorages((prevStorages) => {
+      const updatedStorages = [...prevStorages];
+      updatedStorages[index].quantity = quantity;
+
+      const totalQuantity = updatedStorages.reduce((sum, s) => sum + s.quantity, 0);
+      if (totalQuantity > config.maxStorage) {
+        alert("You cannot exceed the limit of 8 disks.");
+        return prevStorages; // Revert the quantity change if it exceeds the limit
+      }
+
+      return updatedStorages;
     });
   };
 
@@ -69,7 +91,6 @@ export function ServerConfigurator({ frameType }: ServerConfiguratorProps) {
   };
 
   const calculateTotal = () => {
-    // Include the starting price in the total calculation
     return (
       config.startingPrice +
       selectedCpu.price * cpuQuantity +
@@ -131,10 +152,10 @@ export function ServerConfigurator({ frameType }: ServerConfiguratorProps) {
         {/* Storage Selection */}
         <div className="space-y-2">
           <label className="text-sm font-medium flex items-center gap-2">
-            <HardDrive className="h-4 w-4" /> Storage ({config.maxStorage} max)
+            <HardDrive className="h-4 w-4" /> Storage ({config.maxStorage} total)
           </label>
           <div className="flex gap-2">
-            <Select onValueChange={(value) => addStorage(config.storageOptions.find((s) => s.name === value)!, 1)}>
+            <Select onValueChange={(value) => addStorage(config.storageOptions.find((s) => s.name === value)!)} >
               <SelectTrigger>
                 <SelectValue placeholder="Select Storage" />
               </SelectTrigger>
@@ -151,9 +172,19 @@ export function ServerConfigurator({ frameType }: ServerConfiguratorProps) {
             {selectedStorages.map((s, index) => (
               <li key={index} className="flex justify-between items-center">
                 {s.storage.name} x{s.quantity} (${s.storage.price * s.quantity})
-                <Button variant="ghost" size="icon" onClick={() => removeStorage(index)}>
-                  <Trash2 className="h-4 w-4 text-red-500" />
-                </Button>
+                <div className="flex gap-2 items-center">
+                  <Input
+                    type="number"
+                    min="1"
+                    max={config.maxStorage}
+                    value={s.quantity}
+                    onChange={(e) => updateStorageQuantity(index, Number(e.target.value))}
+                    className="w-20"
+                  />
+                  <Button variant="ghost" size="icon" onClick={() => removeStorage(index)}>
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
               </li>
             ))}
           </ul>
