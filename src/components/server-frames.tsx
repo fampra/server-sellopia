@@ -9,16 +9,16 @@ interface ServerFrameProps {
 
 const frames = [
   {
-    id: "1u-rack",
-    title: "1U Rack Server",
+    id: "hpe-proliant-dl16",
+    title: "HPE ProLiant DL160 Gen9",
     description: "Compact 1U rack-mountable server optimized for high-density computing",
     icon: Server,
-    startingPrice: 299,
+    startingPrice: 50,
     specs: [
-      "Supports DDR4 ECC Memory up to 3200MHz",
-      "Dual Intel Xeon Scalable CPU support",
-      "Up to 4 x 2.5\" SSD/HDD bays",
-      "Redundant power supplies",
+      "CPU: Intel Xeon E5 V3, Intel Xeon E5 V4",
+      "RAM: 16 x DIMM Slots - Up to 1TB DDR4",
+      "Cores: Up to 22 Cores",
+      "HDD: Up to 8 Bays",
     ]
   },
   {
